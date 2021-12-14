@@ -5,7 +5,6 @@
 
 #include <concepts>
 #include <iostream>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -142,19 +141,6 @@ inline constexpr struct plus_fn {
     return std::basic_string<CharT, Traits, Alloc>{};
   }
 
-  // optional
-  template <class T>
-  friend constexpr auto tag_invoke(identity_fn<std::optional<T>>, plus_fn) -> std::optional<T> {
-    return std::nullopt;
-  }
-
-  template <class T>
-  friend constexpr auto tag_invoke(plus_fn fn, const std::optional<T>& x, const std::optional<T>& y) -> std::optional<T> {
-    if (x && y) return std::optional<T>{yk::tag_invoke(fn, *x, *y)};
-    if (x) return x;
-    if (y) return y;
-    return std::nullopt;
-  }
 } plus{};
 
 template <class T>
