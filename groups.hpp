@@ -5,6 +5,7 @@
 
 #include <concepts>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -18,8 +19,6 @@
 #else
 #define CXX20_STRING_CONSTEXPR
 #endif
-
-#define EITHER(A, B) ((A) and not(B) or not(A) and (B))
 
 namespace yk ::groups {
 
@@ -167,6 +166,21 @@ inline constexpr struct minus_fn {
 
 } minus{};
 
+template <class T, semigroup<T> S>
+inline constexpr bool enable_semigroup<S, std::optional<T>> = true;
+
+template <class T, magma<T> M>
+constexpr std::optional<T> tag_invoke(identity_fn<std::optional<T>>, M) {
+  return std::nullopt;
+}
+
 }  // namespace yk::groups
+
+template <class T, yk::groups::semigroup<T> S>
+constexpr std::optional<T> tag_invoke(S s, std::optional<T> x, std::optional<T> y) {
+  if (!x) return y;
+  if (!y) return x;
+  return s(x.value(), y.value());
+}
 
 #endif  // !YK_GROUPS_HPP
